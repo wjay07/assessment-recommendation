@@ -4,11 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import os
-from dotenv import load_dotenv
 import google.generativeai as genai
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Load the embedded CSV
 df = pd.read_csv("embedded_assessments.csv")
