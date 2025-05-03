@@ -3,6 +3,12 @@ from pydantic import BaseModel
 import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Load the embedded CSV
 df = pd.read_csv("embedded_assessments.csv")
@@ -30,18 +36,19 @@ app = FastAPI()
 def health_check():
     return {"status": "healthy"}
 
-
 # Request model for recommendation
 class QueryRequest(BaseModel):
     query: str
 
-
 # Use Gemini embedding model
-import google.generativeai as genai
-genai.configure(api_key="AIzaSyAcFfmOOD48lky8LvIMYJ_1dXlMc5RAIsw")  # Replace this with your actual Gemini key
-
 def get_embedding(text):
     try:
+        api_key = os.getenv("GEMINI_API_KEY")  # Retrieve API key from environment variable
+        if not api_key:
+            raise ValueError("API key not found in environment variables")
+
+        genai.configure(api_key=api_key)
+
         response = genai.embed_content(
             model="models/embedding-001",
             content=text,
@@ -51,7 +58,6 @@ def get_embedding(text):
     except Exception as e:
         print(f"Embedding error: {e}")
         return None
-
 
 @app.post("/recommend")
 def recommend_assessments(request: QueryRequest):
